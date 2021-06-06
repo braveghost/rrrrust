@@ -1,6 +1,7 @@
 fn main() {
+    // 数字、元组（标量元素）、数组（标量元素）存储在栈上，可变的值都在堆上
     {
-        println!("=================test1==================数字、元组（标量元素）、数组（标量元素）存储在栈上，可变的值都在堆上");
+        println!("=================栈数据==================");
         let x = 5;
         let y = x;
         println!("x={}", x); // 栈上数据
@@ -8,13 +9,13 @@ fn main() {
     }
 
     {
-        println!("=================test2==================");
+        println!("=================字符串可变==================");
         let mut s = String::from("hello");
         s.push_str("world");
         println!("{}", s)
     }
     {
-        println!("=================test3==================");
+        println!("=================堆数据==================");
         let s1 = String::from("hello");
         let s2 = s1;
         // println!("s1={}",s1); // s1 失效了,指针、长度和容量元数据移动到了s2变量，指针、长度和容量存储在栈内，类似于浅拷贝概念，但是原来的变量会失效
@@ -23,7 +24,7 @@ fn main() {
     }
     {
         //  一个花括号就是一个作用域，所以s1和s2不会和上面的冲突
-        println!("=================test4==================");
+        println!("=================拷贝==================");
         let s1 = String::from("hello");
         let s2 = s1.clone();
         println!("s1={}", s1); // s1指针、长度和容量元数据以及堆上的值都做拷贝，类似于深拷贝概念
@@ -31,16 +32,16 @@ fn main() {
     }
 
     {
-        println!("=================test5==================函数作用域");
+        println!("=================函数作用域==================");
         //     变量传给函数会触发移动或复制，就像赋值语句一样
         level_3_fn_1();
-        println!("=================test6==================函数、变量所有权");
+        println!("=================函数、变量所有权==================");
         level_3_fn_2();
-        println!("=================test7==================引用");
+        println!("=================引用==================");
         level_3_fn_3();
     }
     {
-        println!("=================test8==================切片");
+        println!("=================切片==================");
         level_3_fn_4()
 
     }
@@ -50,7 +51,7 @@ fn level_3_fn_1() {
     //  释放
     let _s = String::from("hello");
     level_3_fn_1_1(_s);
-    // println!("level_3_fn_1.s={}", s); // s不可用, level_3_fn_1_1(s)执行触发移动，s已失效
+    // println!("level_3_fn_1.s={}", s); // s不可用, level_3_fn_1_1(s)执行触发移动，s已失效 因为s为堆数据触发了移动
 
     let n = 5;
     level_3_fn_1_2(n);
@@ -89,6 +90,8 @@ fn level_3_fn_2_2(s: String) -> String {
 
 fn level_3_fn_3() {
     let s = String::from("hello");  //   不可变引用
+     // s.add(&(String::from("hello"))); //不能修改
+
     let len = level_3_fn_3_1(&s); // 引用不会交付所有权，借用所有权，但是只有使用权没有修改权
     println!("level_3_fn_3.s={}", s);
     println!("level_3_fn_3.len={}", len);
@@ -117,7 +120,9 @@ fn level_3_fn_3() {
 fn level_3_fn_3_1(s: &String) -> usize {
     //  s 本身是不可变的类型，引用并且没有所有权 不可以修改s
     println!("level_3_fn_3_1.s={}", s);
+    // s.push_str("world");  //不能修改
     s.len() // level_3_fn_3_1不持有s的所有权所以s离开作用域不会释放
+
 }
 
 fn level_3_fn_3_2(s: &mut String) -> usize {
@@ -134,13 +139,14 @@ fn level_3_fn_3_2(s: &mut String) -> usize {
 // }
 
 fn level_3_fn_4() {
-    let   mut s = String::from("hello world");
+    let    s = String::from("hello world");
     // let s1 = "hhhh"; // 字符串的字面量就是切片
 
     let hello1 = &s[0..5];
     let hello2 = &s[..5];
     let world1 = &s[6..10];
     let world2 = &s[6..];
+
     println!("level_3_fn_4.hello1={}",hello1);  // 字符串切片必须是有效的utf-8边界
     println!("level_3_fn_4.hello2={}",hello2);
     println!("level_3_fn_4.world1={}",world1);
@@ -153,10 +159,11 @@ fn level_3_fn_4() {
     println!("level_3_fn_4={}",s);  // 字符串切片必须是有效的utf-8边界
 
     //  元组不能切片， 数组可以
-    let li  = [1,2];
-    let _ = li[..];
-    // println!("tup-0=",tup_slice);
-    // println!("tup-1=",tup_slice);
+    let mut li = [1,2];
+    let lili = &li[..];
+    // li[1] = 4;   // li已被借用 不能修改
+    println!("{}",li[1]);
+    println!("{}",lili[1]);
 
 }
 
