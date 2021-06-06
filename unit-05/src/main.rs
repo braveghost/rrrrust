@@ -1,7 +1,6 @@
-
 fn main() {
     {
-        println!("=================test1==================枚举");
+        println!("=================枚举==================");
         let v4 = IpAddrKind::V4;
         println!("{:?}", v4);
         println!("{:?}", IpAddrKind::V6);
@@ -11,26 +10,29 @@ fn main() {
         println!("{:?}", v4ip);
         println!("{:?}", v6ip);
         let msg = Message::Size { length: 1, size: 2 };
-        let _ = Message::Type;
-        let _ = Message::To(String::from("miller"));
-        msg.call()
+        let msg1 = Message::Type;
+        let msg2 = Message::To(String::from("miller"));
+        msg.call();
+        msg1.call();
+        msg2.call();
     }
 
     {
-        println!("=================test2==================Option");
+        println!("=================Option枚举==================");
         let some_number = Some(5);
         let some_string = Some(String::from("some string"));
         let null: Option<i32> = None;
         println!("{:?}", some_number);
         println!("{:?}", some_string);
         println!("{:?}", null);
-        // let x : i16 = 5;
-        // let y :Option<i16> = Some(6);
-        // let sum = x+y; // 不能相加，这是不同的类型，todo 补充官方文档
-        // println!("Sum = {}", sum)
+        let x: i16 = 5;
+        let y: Option<i16> = Some(6);
+        // let sum = x+y; // 不能相加，这是不同的类型
+        let sum = x + y.unwrap(); // 解包拿到具体的类型值
+        println!("Sum = {}", sum)
     }
     {
-        println!("=================test3==================match");
+        println!("=================match==================");
         let v4 = IpAddrKind::V4;
 
         match v4 {
@@ -54,38 +56,38 @@ fn main() {
         println!("Penny = {}", value_in_cents(Coin::Dime));
 
 
-        let y :Option<i16> = Some(6);
-        let q=  match y {
-            None=>None,
-            Some(i)=>Some(i+10), // i 绑定了y包含的6
+        let y: Option<i16> = Some(6);
+        let q = match y {
+            None => None,
+            Some(i) => Some(i + 10), // i 绑定了y包含的6
         };
         println!("Sum = {:?}", q);
 
         let x = 10;
-        let c =  match x {
-            1=>false,
-            10=>true,
-            _ =>false,  // 除了1和10其他的情况
+        //  必须穷举
+        let c = match x {
+            1 => false,
+            10 => true,
+            _ => false,  // 除了1和10其他的情况
         };
         println!("c = {:?}", c);
-        let ff =  match x {
-            1=>println!("not 1"),
-            10=>println!("not 10"),
-            _ =>(),  // 返回(), 必要的非穷尽格式
-            _ => {},  // 返回()
+        let ff = match x {
+            1 => println!("not 1"),
+            10 => println!("not 10"),
+            _ => (),  // 返回(), 必要的非穷尽格式
+            // _ => {
+            //     println!("{}", x);
+            // },
         };
         println!("ff = {:?}", ff);
-
-        if let q = Some(16){   // 可以替代match和_的写法
-            println!("q={:?}", q)
-        }else if let   q = Some(1)  {
-            println!("q={:?}", q)
-
-        }else {
-            println!("q={:?}", q)
-
+        let q = Some(16);
+        if let Some(1) = q {   // 可以替代match和_的写法
+            println!("q1={:?}", q)
+        } else if let Some(16) = q {
+            println!("q2={:?}", q)
+        } else {
+            println!("q3={:?}", q)
         }
-
     }
 }
 
@@ -109,7 +111,19 @@ enum Message {
 }
 
 impl Message {
-    fn call(&self) {}
+    fn call(&self) {
+        match self {
+            Message::Type => {
+                println!("type {:?}", self);
+            }
+            Message::To(s) => {
+                println!("to {}", s)
+            }
+            Message::Size { length, size } => {
+                println!("length {} size {}", length, size)
+            }
+        }
+    }
 }
 
 
@@ -139,7 +153,7 @@ fn value_in_cents(c: Coin) -> u32 {
                 }
                 UsState::Alabama => {
                     println!("Alabama");
-                    25
+                    50
                 }
             }
         }
