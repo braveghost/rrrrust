@@ -1,6 +1,6 @@
 fn main() {
     {
-        println!("=================test1==================结构体");
+        println!("=================结构体==================");
         // let user1 = User{username: String::from("miller"),email:String::from("abc@xxx.com"),active:true}; // 不加mnt是不可变的，值一旦固定就不能修改
         // user1.active = false
         let user1 = new_user(String::from("bob"), String::from("email@ccc.com"));
@@ -10,7 +10,7 @@ fn main() {
 
         let user3 = User {
             username: String::from("nini"),
-            ..user2
+            ..user2  // 复用其他属性
         };
 
         let user4 = User {
@@ -44,38 +44,40 @@ fn main() {
     }
 
     {
-        println!("=================test2==================元组结构体");
+        println!("=================元组结构体==================");
         let ss = Color(1, 2, 3);  // 不可改变
         let mut pp = ss;
         pp.1 = 3;
+        println!("pp1 = {}", pp.1);
+
         let _ = Point(1, 2, 3);  // 不可改变
 
         level_4_fn_2((1, 3, 54)); // 不能接受Color类型和Point类型
     }
     {
-        println!("=================test3==================注解派生");
+        println!("=================注解派生==================");
         let user1 = new_user(String::from("bob"), String::from("email@ccc.com"));
         // println!("{}", user1) // 不能打印，因为没有实现对应Display接口特性
         println!("user1.username = {}", user1.username);
         // println!("{:?}", user1) // 不能打印，因为没有实现对应debug接口特性
         let ss = Color(1, 2, 3);
-        println!("{:?}", ss); // 实现了debug特性
+        println!("{:?}", ss); // 通过注解实现了debug特性
     }
     {
         println!("=================test4==================方法和静态绑定方法（关联函数python的staticmethod）");
         let mut user1 = new_user(String::from("bob"), String::from("email@ccc.com"));
-        let  user2 = new_user(String::from("nini"), String::from("email@ccc.com"));
-        // println!("{}",       user1.get_name());
-        println!("{}",       user1.add_age(10));
+        let user2 = new_user(String::from("nini"), String::from("email@ccc.com"));
+        // println!("{}",       user1.get_name()); // 移交了username的所有权，下面的user1.username报错
+        println!("{}", user1.add_age(10));
         user1.set_name(String::from("miller"));
-        println!("{}",  user1.username     );
-        User::set_name(&mut user1,String::from("miller chai"));
-        println!("{}",  user1.username     );
+        println!("{}", user1.username);
+        User::set_name(&mut user1, String::from("miller chai"));
+        println!("{}", user1.username);
 
-        User::married(user1,user2 ); // user1 和 user2 移动了作用域，都失效了
-
+        User::married(&user1, &user2);
+        // User::married(user1, user2); // 如果不通过引用方式 user1 和 user2 移动了作用域，都失效了
+        println!("{}", user1.get_name());
     }
-
 }
 
 struct User {
@@ -85,8 +87,8 @@ struct User {
     age: i32,
 }
 
-fn new_user(name: String, email: String) -> User {
-    User { username: name, email: email, active: true, age: 10 }
+fn new_user(username: String, email: String) -> User {
+    User { username, email, active: true, age: 10 }
 }
 
 //  这俩不是一个类型
@@ -100,19 +102,18 @@ fn level_4_fn_2(_: (i32, i32, i32)) {}
 
 //  impl关联函数
 impl User {
-    // fn get_name(self) -> String { // 执行这个函数后会转移所有权
-    //     self.username
-    // }
-
+    fn get_name(self) -> String { // 执行这个函数后会转移所有权
+        self.username
+    }
 }
+
 impl User {
-    fn add_age(&self, age: i32) -> i32{ // 这里self只是调用
+    fn add_age(&self, age: i32) -> i32 { // 这里self只是调用
         self.age + age
     }
-    fn set_name(&mut self, name: String){ // 可变引用的所有权
+    fn set_name(&mut self, name: String) { // 可变引用的所有权
         self.username = name
     }
-    fn married(_: User,_: User){ // 静态方法
-
+    fn married(_: &User, _: &User) { // 静态方法
     }
 }

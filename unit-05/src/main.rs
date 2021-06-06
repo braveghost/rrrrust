@@ -1,5 +1,4 @@
 
-// todo level 5
 fn main() {
     {
         println!("=================test1==================枚举");
@@ -129,7 +128,7 @@ enum UsState {
 
 fn value_in_cents(c: Coin) -> u32 {
     match c {
-        Coin::Pnny => 1,
+        Coin::Penny => 1,
         Coin::Nickel => 5,
         Coin::Dime => 10,
         Coin::Quarter(state) => {
